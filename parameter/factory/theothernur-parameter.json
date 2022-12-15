@@ -1,0 +1,9 @@
+{
+	"name": "theothernur-parameter",
+	"location": "qatarcentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "63db4b75-81f3-47b7-97b9-8bc1a5a24669",
+		"tenantId": "755de9ae-86f9-4909-b1a5-f092c48533f1"
+	}
+}
