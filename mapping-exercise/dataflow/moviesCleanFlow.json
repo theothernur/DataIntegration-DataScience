@@ -1,0 +1,67 @@
+{
+	"name": "moviesCleanFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "moviesCSV",
+						"type": "DatasetReference"
+					},
+					"name": "Movies"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputCSV",
+						"type": "DatasetReference"
+					},
+					"name": "moviesClean"
+				},
+				{
+					"dataset": {
+						"referenceName": "outputCSV",
+						"type": "DatasetReference"
+					},
+					"name": "moviesByYearSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "yearExtraction"
+				},
+				{
+					"name": "moviesByYear"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          movieId as string,",
+				"          title as string,",
+				"          genres as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Movies",
+				"Movies derive(Year = toInteger(trim(right(title,6), '()')),",
+				"          title = toString(left(title, length(title)-6))) ~> yearExtraction",
+				"yearExtraction aggregate(groupBy(Year),",
+				"     moviesCount = count()) ~> moviesByYear",
+				"yearExtraction sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['moviesClean.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> moviesClean",
+				"moviesByYear sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['moviesByYear.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> moviesByYearSink"
+			]
+		}
+	}
+}
